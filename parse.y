@@ -708,6 +708,7 @@ static void token_info_pop(struct parser_params*, const char *token);
 	keyword_unless
 	keyword_then
 	keyword_elsif
+	keyword_elif
 	keyword_else
 	keyword_case
 	keyword_when
@@ -1920,7 +1921,7 @@ reswords	: keyword__LINE__ | keyword__FILE__ | keyword__ENCODING__
 		| keyword_BEGIN | keyword_END
 		| keyword_alias | keyword_and | keyword_begin
 		| keyword_break | keyword_case | keyword_class | keyword_def
-		| keyword_defined | keyword_do | keyword_else | keyword_elsif
+		| keyword_defined | keyword_do | keyword_else | keyword_elsif | keyword_elif
 		| keyword_end | keyword_ensure | keyword_false
 		| keyword_for | keyword_in | keyword_module | keyword_next
 		| keyword_nil | keyword_not | keyword_or | keyword_redo
@@ -3132,6 +3133,17 @@ do		: term
 
 if_tail		: opt_else
 		| keyword_elsif expr_value then
+		  compstmt
+		  if_tail
+        {
+        /*%%%*/
+      $$ = NEW_IF(cond($2), $4, $5);
+      fixpos($$, $2);
+        /*%
+      $$ = dispatch3(elsif, $2, $4, escape_Qundef($5));
+        %*/
+        }
+		| keyword_elif expr_value then
 		  compstmt
 		  if_tail
 		    {
@@ -10995,6 +11007,7 @@ static const struct kw_assoc {
     {keyword_unless,	"unless"},
     {keyword_then,	"then"},
     {keyword_elsif,	"elsif"},
+    {keyword_elif,	"elif"},
     {keyword_else,	"else"},
     {keyword_case,	"case"},
     {keyword_when,	"when"},

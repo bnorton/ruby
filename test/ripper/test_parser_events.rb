@@ -539,6 +539,12 @@ class TestRipper::ParserEvents < Test::Unit::TestCase
     assert_equal true, thru_elsif
   end
 
+  def test_elif
+    thru_elif = false
+    parse('if foo; bar elif qux; zot end', :on_elsif) {thru_elif = true}
+    assert_equal true, thru_elif
+  end
+
   def test_ensure
     thru_ensure = false
     parse('begin foo ensure bar end', :on_ensure) {thru_ensure = true}
